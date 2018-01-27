@@ -20,6 +20,7 @@ FUJICOINUI_DIR = HOME + '/Web/git/fujicoin-ui'
 GLADE_DIR = FUJICOINUI_DIR +  '/glade'
 CSS_DIR = FUJICOINUI_DIR + '/glade'
 DEBUG_LOG = HOME + '/.fujicoin/debug.log'
+DB_LOG = HOME + '/.fujicoin/db.log'
 ##################################
 
 def get_conf():
@@ -138,9 +139,14 @@ class FujiCoin(object):
         self.notebook.set_current_page(6)
 
     def on_debug_log_activate(self, widget):
-        self.terminal.show()
-        self.terminal.feed_child('tail -f  ' + DEBUG_LOG + ' \n', -1)
+        self.term_debug.show()
+        self.term_debug.feed_child('tail -f  ' + DEBUG_LOG + ' \n', -1)
         self.notebook.set_current_page(7)
+
+    def on_db_log_activate(self, widget):
+        self.term_db.show()
+        self.term_db.feed_child('tail -f  ' + DB_LOG + ' \n', -1)
+        self.notebook.set_current_page(8)
 
 
     def __init__(self):
@@ -160,6 +166,7 @@ class FujiCoin(object):
         self.lbl_help = self.builder.get_object('lbl_help')
         self.txt_node = self.builder.get_object('txt_node_name')
         self.hbox_vte_debug_log = self.builder.get_object('hbox_vte_debug_log')
+        self.hbox_vte_db_log = self.builder.get_object('hbox_vte_db_log')
 
 
         w = self.builder.get_object('window-root')
@@ -179,27 +186,20 @@ class FujiCoin(object):
             "on_btn_add_clicked": self.btn_add_clicked,
             "on_btn_remove_clicked": self.btn_remove_clicked,
             "on_debug_log_activate": self.on_debug_log_activate,
+            "on_db_log_activate": self.on_db_log_activate,
         }
 
         self.builder.connect_signals(signals)
 
-        """
-        status_service = commands.getoutput('ps -A')
-        if 'fujicoind' in status_service:
-            pid = commands.getoutput("ps -A|grep fujicoind|awk '{print $1}' ")
-            self.label_info_service.set_text('Fujicoind Server is running with pid ' + pid)
-            self.service_start.set_sensitive(False)
-        else:
-            self.label_info_service.set_text('Fujicoind Server Stopped')
-            self.service_stop.set_sensitive(False)
-         """
         self.get_service_status()
-
         get_info = subprocess.check_output("fujicoind getinfo | grep -v } | grep -v {; exit 0", stderr=subprocess.STDOUT, shell=True)
         self.lbl_home.set_text(get_info.decode())
 
-        self.terminal = self.create_terminal()
+        self.term_debug = self.create_terminal()
         self.hbox_vte_debug_log.add(self.terminal)
+
+        self.term_db = self.create_terminal()
+        self.hbox_vte_db_log.add(self.terminal)
 
 
          # CSS Style
