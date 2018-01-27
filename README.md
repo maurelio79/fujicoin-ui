@@ -1,8 +1,21 @@
 # fujicoin-ui
 Simple UI to manage fujicoind server.
 
-Copy folder where you want, modify variables according to your location and run the ui.
+Copy folder where you want, create a a file fujicoin-ui.conf inside your .fujicoinfolder <br>
+(NOTE that if your fujicoin installation is not inside your home dir you need to change <br>
+conf_file variable at the begining of the script).<br>
 
+fujicoin-ui.conf format be the following:
+
+<code>
+[var]
+glade = /home/maurelio/Web/git/fujicoin-ui/glade
+css = /home/maurelio/Web/git/fujicoin-ui/glade
+debug_log = /home/maurelio/.fujicoin/debug.log
+db_log = /home/maurelio/.fujicoin/db.log
+</code>
+
+Of course change folders according to the position of yours fujicoin-ui folder.<br>
 Work in progress!!
 
 Some screenshot:
