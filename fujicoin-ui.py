@@ -10,28 +10,35 @@ from os.path import expanduser
 
 ##################################
 # This set your home dir (/home/you)
-HOME= expanduser("~")
+HOME = expanduser("~")
+conf_file = HOME + '/.fujicoin/fujicoin-ui.conf'
 
 # Change variable below according to your installation.
 # Usually installation is in your home dir, so just change
 # what is after '+', if not change all string after '='
-FUJICOIND_DIR = '/usr/local/bin'
-FUJICOINUI_DIR = HOME + '/Web/git/fujicoin-ui'
-GLADE_DIR = FUJICOINUI_DIR +  '/glade'
-CSS_DIR = FUJICOINUI_DIR + '/glade'
-DEBUG_LOG = HOME + '/.fujicoin/debug.log'
-DB_LOG = HOME + '/.fujicoin/db.log'
+# FUJICOIND_DIR = '/usr/local/bin'
+#FUJICOINUI_DIR = HOME + '/Web/git/fujicoin-ui'
+#GLADE_DIR = FUJICOINUI_DIR +  '/glade'
+#CSS_DIR = FUJICOINUI_DIR + '/glade'
+#DEBUG_LOG = HOME + '/.fujicoin/debug.log'
+#DB_LOG = HOME + '/.fujicoin/db.log'
 ##################################
 
 def get_conf():
     # Still not in use
-    conf_file = HOME + '/.fujicoin/fujicoin-ui.conf'
     config = ConfigParser.ConfigParser()
     config.readfp(open(conf_file))
     glade = config.get('var', 'glade')
     css = config.get('var', 'css')
     debug_log = config.get('var', 'debug_log')
-    return [glade, css, debug_log]
+    db_log = config.get('var', 'db_log')
+    return [glade, css, debug_log, db_log]
+
+conf = get_conf()
+GLADE_DIR = conf[0]
+CSS_DIR = conf[1]
+DEBUG_LOG = conf[2]
+DB_LOG = conf[3]
 
 def display_error(data):
 	dialogError = gtk.MessageDialog(None, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK)
@@ -215,7 +222,6 @@ class FujiCoin(object):
 
         self.term_db = self.create_terminal()
         self.hbox_vte_db_log.add(self.terminal)
-
 
          # CSS Style
         cssProvider = Gtk.CssProvider()
