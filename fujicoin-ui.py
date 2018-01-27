@@ -23,6 +23,7 @@ DEBUG_LOG = HOME + '/.fujicoin/debug.log'
 ##################################
 
 def get_conf():
+    # Still not in use
     conf_file = HOME + '/.fujicoin/fujicoin-ui.conf'
     config = ConfigParser.ConfigParser()
     config.readfp(open(conf_file))
