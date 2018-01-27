@@ -8,11 +8,11 @@ conf_file variable at the begining of the script).<br>
 fujicoin-ui.conf format be the following:
 
 <code>
-[var]
-glade = /home/maurelio/Web/git/fujicoin-ui/glade
-css = /home/maurelio/Web/git/fujicoin-ui/glade
-debug_log = /home/maurelio/.fujicoin/debug.log
-db_log = /home/maurelio/.fujicoin/db.log
+[var]<br>
+glade = /home/maurelio/Web/git/fujicoin-ui/glade<br>
+css = /home/maurelio/Web/git/fujicoin-ui/glade<br>
+debug_log = /home/maurelio/.fujicoin/debug.log<br>
+db_log = /home/maurelio/.fujicoin/db.log<br>
 </code>
 
 Of course change folders according to the position of yours fujicoin-ui folder.<br>
