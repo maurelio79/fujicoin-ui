@@ -61,6 +61,11 @@ class FujiCoin(object):
         self.terminal.set_rewrap_on_resize(True)
         return self.terminal
 
+    def tail_debug_log(self, widget):
+        self.term_debug_log.show()
+        self.term_debug_log.feed_child('tail -f  ' + DEBUG_LOG + ' \n', -1)
+        self.notebook.set_current_page(5)
+
     def get_service_status(self):
         status_service = subprocess.check_output('ps -A', shell=True)
         pid = subprocess.check_output("ps -A | grep fujicoind|awk '{print $1}' ; exit 0", stderr=subprocess.STDOUT, shell=True)
@@ -205,12 +210,14 @@ class FujiCoin(object):
         self.btn_nodes_png = self.builder.get_object('btn_nodes_png')
         self.listbox_nodes = self.builder.get_object('listbox_nodes')
         self.txt_node_name = self.builder.get_object('txt_node_name')
+        self.hbox_vte_debug_log = self.builder.get_object('hbox_vte_debug_log')
 
         w = self.builder.get_object('window-root')
         w.show_all()
 
         signals = {
             "on_window-root_destroy" : Gtk.main_quit,
+            "on_menu_debug_log_activate": self.tail_debug_log,
             "on_btn_service_start_clicked" : self.start_service,
             "on_btn_service_stop_clicked" : self.stop_service,
             "on_btn_home_clicked": self.open_home,
@@ -222,6 +229,9 @@ class FujiCoin(object):
         self.builder.connect_signals(signals)
 
         self.open_home(self)
+
+        self.term_debug_log = self.create_terminal()
+        self.hbox_vte_debug_log.add(self.term_debug_log)
 
 
          # CSS Style
