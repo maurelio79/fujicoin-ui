@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import gi, os, subprocess, time, ConfigParser
+import simplejson as json
 gi.require_version('Gtk', '3.0')
 gi.require_version('Vte', '2.91')
 gi.require_version('GConf', '2.0')
@@ -8,37 +9,28 @@ from gi.repository import Gtk, Gdk, Vte, GLib, Pango, GConf, GdkPixbuf
 from os.path import expanduser
 
 
-##################################
-# This set your home dir (/home/you)
 HOME = expanduser("~")
 conf_file = HOME + '/.fujicoin/fujicoin-ui.conf'
 
-# Change variable below according to your installation.
-# Usually installation is in your home dir, so just change
-# what is after '+', if not change all string after '='
-# FUJICOIND_DIR = '/usr/local/bin'
-#FUJICOINUI_DIR = HOME + '/Web/git/fujicoin-ui'
-#GLADE_DIR = FUJICOINUI_DIR +  '/glade'
-#CSS_DIR = FUJICOINUI_DIR + '/glade'
-#DEBUG_LOG = HOME + '/.fujicoin/debug.log'
-#DB_LOG = HOME + '/.fujicoin/db.log'
-##################################
 
 def get_conf():
-    # Still not in use
     config = ConfigParser.ConfigParser()
     config.readfp(open(conf_file))
     glade = config.get('var', 'glade')
     css = config.get('var', 'css')
     debug_log = config.get('var', 'debug_log')
     db_log = config.get('var', 'db_log')
-    return [glade, css, debug_log, db_log]
+    return { 'glade' : glade,
+            'css' : css,
+            'debug_log' : debug_log,
+            'db_log' : db_log,
+            }
 
 conf = get_conf()
-GLADE_DIR = conf[0]
-CSS_DIR = conf[1]
-DEBUG_LOG = conf[2]
-DB_LOG = conf[3]
+GLADE_DIR = conf['glade']
+CSS_FILE = conf['css']
+DEBUG_LOG = conf['debug_log']
+DB_LOG = conf['db_log']
 
 def display_error(data):
 	dialogError = gtk.MessageDialog(None, type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK)
@@ -70,97 +62,117 @@ class FujiCoin(object):
         return self.terminal
 
     def get_service_status(self):
-
         status_service = subprocess.check_output('ps -A', shell=True)
         pid = subprocess.check_output("ps -A | grep fujicoind|awk '{print $1}' ; exit 0", stderr=subprocess.STDOUT, shell=True)
         if 'fujicoind' in status_service.decode():
-            self.label_info_service.set_text('Fujicoind Server is running with pid ' + pid.decode())
-            self.service_start.set_sensitive(False)
-            self.service_stop.set_sensitive(True)
+            self.lbl_info_service.set_text('Fujicoind Server is running with pid ' + pid.decode())
+            self.btn_service_start.set_sensitive(False)
+            self.btn_service_stop.set_sensitive(True)
         elif 'fujicoind' not in status_service.decode():
-            self.label_info_service.set_text('Fujicoind is Stopped')
-            self.service_stop.set_sensitive(False)
-            self.service_start.set_sensitive(True)
+            self.lbl_info_service.set_text('Fujicoind is Stopped')
+            self.btn_service_stop.set_sensitive(False)
+            self.btn_service_start.set_sensitive(True)
         else:
-            self.label_info_service.set_text('Unable to get Fujicoind Server status')
+            self.lbl_info_service.set_text('Unable to get Fujicoind Server status')
 
     def start_service(self, widget):
-
         os.system('fujicoind &')
         time.sleep(1)
         status_service = subprocess.check_output('ps -A; exit 0', stderr=subprocess.STDOUT, shell=True)
         pid = subprocess.check_output("ps -A|grep fujicoind|awk '{print $1}'; exit 0 ", stderr=subprocess.STDOUT, shell=True)
         if 'fujicoind' in status_service.decode():
-            self.label_info_service.set_text('Fujicoind Server is running with pid ' + pid.decode())
-            self.service_start.set_sensitive(False)
-            self.service_stop.set_sensitive(True)
+            self.lbl_info_service.set_text('Fujicoind Server is running with pid ' + pid.decode())
+            self.btn_service_start.set_sensitive(False)
+            self.btn_service_stop.set_sensitive(True)
             get_info = subprocess.check_output("fujicoind getinfo | grep -v } | grep -v {; exit 0", stderr=subprocess.STDOUT, shell=True)
             self.lbl_home.set_text(get_info.decode())
-
     def stop_service(self, widget):
-
         os.system('fujicoind stop')
         time.sleep(1)
         status_service = subprocess.check_output('ps -A', shell=True)
         if  'fujicoind' not in status_service.decode():
-            self.label_info_service.set_text('Fujicoind is Stopped')
-            self.service_stop.set_sensitive(False)
-            self.service_start.set_sensitive(True)
-
-    def btn_home_clicked(self, widget):
+            self.lbl_info_service.set_text('Fujicoind is Stopped')
+            self.btn_service_stop.set_sensitive(False)
+            self.btn_service_start.set_sensitive(True)
+    def open_home(self, widget):
         self.get_service_status()
-        get_info = subprocess.check_output("fujicoind getinfo | grep -v } | grep -v {; exit 0", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_home.set_text(get_info.decode())
-        get_balance = subprocess.check_output("fujicoind getbalance; exit 0", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_balance.set_text(get_balance.decode())
-        get_difficulty = subprocess.check_output("fujicoind getdifficulty; exit 0", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_difficulty.set_text(get_difficulty.decode())
-        get_blockcount = subprocess.check_output("fujicoind getblockcount; exit 0", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_blockcount.set_text(get_blockcount.decode())
+        get_info = subprocess.check_output("fujicoind getinfo; exit 0", stderr=subprocess.STDOUT, shell=True)
+        j_info = json.loads(get_info)
+        balance = j_info['balance']
+        blocks = j_info['blocks']
+        difficulty = j_info['difficulty']
+        errors = j_info['errors']
+        label_list = [self.lbl_balance, self.lbl_blocks, self.lbl_errors, self.lbl_difficulty]
+        for i in label_list:
+            i.set_text("")
+        self.lbl_balance.set_text("Balance: " + str(balance))
+        self.lbl_blocks.set_text("Blocks: " + str(blocks))
+        self.lbl_difficulty.set_text("Difficulty: " + str(difficulty))
+        self.lbl_errors.set_text("Errors: " + str(errors))
         self.notebook.set_current_page(0)
-
-    def btn_receive_clicked(self, widget):
-        self.notebook.set_current_page(1)
-
-    def btn_send_clicked(self, widget):
-        self.notebook.set_current_page(2)
-
-    def btn_transaction_clicked(self, widget):
-        self.notebook.set_current_page(3)
-
-    def btn_nodes_clicked(self, widget):
+    def open_nodes(self, widget):
+        self.listbox_nodes.destroy()
+        self.listbox_nodes = Gtk.ListBox()
+        self.vbox_cont_nodes.pack_start(self.listbox_nodes, False, False, 0)
         connected_node = subprocess.check_output("fujicoind getaddednodeinfo true; exit 0",  stderr=subprocess.STDOUT, shell=True)
-        self.lbl_nodes.set_text(connected_node.decode())
+        j_nodes = json.loads(connected_node)
+        if len(j_nodes) > 0:
+            for i in range(len(j_nodes)):
+                node_name = j_nodes[i]['addednode']
+                connected = str(j_nodes[i]['connected'])
+                self.hboxRowNode = Gtk.HBox()
+                self.listbox_nodes.add(self.hboxRowNode)
+                self.lbl_node_name = Gtk.Label()
+                self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
+                self.lbl_node_connected = Gtk.Label()
+                self.hboxRowNode.pack_start(self.lbl_node_connected, True, True, 5)
+                self.lbl_node_name.set_text(node_name)
+                self.lbl_node_connected.set_text(connected)
+        else:
+            self.hboxRowNode = Gtk.HBox()
+            self.listbox_nodes.add(self.hboxRowNode)
+            self.lbl_node_name = Gtk.Label()
+            self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
+            self.lbl_node_connected = Gtk.Label()
+            self.hboxRowNode.pack_start(self.lbl_node_connected, True, True, 5)
+
+
+        self.hboxRowNode.show()
+        self.lbl_node_name.show()
+        self.lbl_node_connected.show()
+        self.listbox_nodes.show()
+
         self.notebook.set_current_page(4)
 
-    def btn_add_clicked(self, widget):
-        node_name = self.txt_node.get_text()
+    def add_node(self, widget):
+        node_name = self.txt_node_name.get_text()
         os.system('fujicoind addnode %s add' %(node_name))
-        connected_node = subprocess.check_output("fujicoind getaddednodeinfo true", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_nodes.set_text(connected_node.decode())
+        connected_node = subprocess.check_output("fujicoind getaddednodeinfo true " + node_name, stderr=subprocess.STDOUT, shell=True)
+        j_nodes = json.loads(connected_node)
 
-    def btn_remove_clicked(self, widget):
-        node_name = self.txt_node.get_text()
+        node_name = j_nodes[0]['addednode']
+        connected = str(j_nodes[0]['connected'])
+
+        self.hboxRowNode = Gtk.HBox()
+        self.listbox_nodes.add(self.hboxRowNode)
+        self.lbl_node_name = Gtk.Label()
+        self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
+        self.lbl_node_connected = Gtk.Label()
+        self.hboxRowNode.pack_start(self.lbl_node_connected, True, True, 5)
+        self.lbl_node_name.set_text(node_name)
+        self.lbl_node_connected.set_text(connected)
+
+        self.hboxRowNode.show()
+        self.lbl_node_name.show()
+        self.lbl_node_connected.show()
+
+    def remove_node(self, widget):
+        row = self.listbox_nodes.get_selected_rows()
+        hbox = row[0].get_children()
+        label = hbox[0].get_children()
+        node_name = label[0].get_text()
         os.system('fujicoind addnode %s remove' %(node_name))
-        connected_node = subprocess.check_output("fujicoind getaddednodeinfo true", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_nodes.set_text(connected_node.decode())
-
-    def btn_term_clicked(self, widget):
-        self.notebook.set_current_page(5)
-
-    def btn_help_clicked(self, widget):
-        self.notebook.set_current_page(6)
-
-    def on_debug_log_activate(self, widget):
-        self.term_debug.show()
-        self.term_debug.feed_child('tail -f  ' + DEBUG_LOG + ' \n', -1)
-        self.notebook.set_current_page(7)
-
-    def on_db_log_activate(self, widget):
-        self.term_db.show()
-        self.term_db.feed_child('tail -f  ' + DB_LOG + ' \n', -1)
-        self.notebook.set_current_page(8)
-
+        row.destroy()
 
     def __init__(self):
 
@@ -168,64 +180,42 @@ class FujiCoin(object):
 
 
         self.builder = Gtk.Builder()
-        self.builder.add_from_file(gladefile('fujicoin.glade'))
+        self.builder.add_from_file(gladefile('fujicoin-ui.glade'))
 
-        self.label_info_service = self.builder.get_object('label_info_service')
-        self.service_start = self.builder.get_object('service_start')
-        self.service_stop = self.builder.get_object('service_stop')
-        self.notebook = self.builder.get_object('notebook')
-        self.lbl_home = self.builder.get_object('lbl_home')
+        self.vbox_cont_nodes = self.builder.get_object('vbox_cont_nodes')
+        self.lbl_info_service = self.builder.get_object('lbl_info_service')
+        self.btn_service_start = self.builder.get_object('btn_service_start')
+        self.btn_service_stop = self.builder.get_object('btn_service_stop')
         self.lbl_balance = self.builder.get_object('lbl_balance')
+        self.lbl_blocks = self.builder.get_object('lbl_blocks')
         self.lbl_difficulty = self.builder.get_object('lbl_difficulty')
-        self.lbl_blockcount = self.builder.get_object('lbl_blockcount')
-        self.lbl_nodes = self.builder.get_object('lbl_nodes')
-        self.lbl_help = self.builder.get_object('lbl_help')
-        self.txt_node = self.builder.get_object('txt_node_name')
-        self.hbox_vte_debug_log = self.builder.get_object('hbox_vte_debug_log')
-        self.hbox_vte_db_log = self.builder.get_object('hbox_vte_db_log')
-
+        self.lbl_errors = self.builder.get_object('lbl_errors')
+        self.notebook = self.builder.get_object('notebook')
+        self.btn_nodes_png = self.builder.get_object('btn_nodes_png')
+        self.listbox_nodes = self.builder.get_object('listbox_nodes')
+        self.txt_node_name = self.builder.get_object('txt_node_name')
 
         w = self.builder.get_object('window-root')
         w.show_all()
 
         signals = {
             "on_window-root_destroy" : Gtk.main_quit,
-            "on_service_start_clicked" : self.start_service,
-            "on_service_stop_clicked" : self.stop_service,
-            "on_btn_home_clicked" : self.btn_home_clicked,
-            "on_btn_receive_clicked" : self.btn_receive_clicked,
-            "on_btn_send_clicked" : self.btn_send_clicked,
-            "on_btn_transaction_clicked" : self.btn_transaction_clicked,
-            "on_btn_nodes_clicked" : self.btn_nodes_clicked,
-            "on_btn_term_clicked" : self.btn_term_clicked,
-            "on_btn_help_clicked" : self.btn_help_clicked,
-            "on_btn_add_clicked": self.btn_add_clicked,
-            "on_btn_remove_clicked": self.btn_remove_clicked,
-            "on_debug_log_activate": self.on_debug_log_activate,
-            "on_db_log_activate": self.on_db_log_activate,
+            "on_btn_service_start_clicked" : self.start_service,
+            "on_btn_service_stop_clicked" : self.stop_service,
+            "on_btn_home_clicked": self.open_home,
+            "on_btn_nodes_clicked": self.open_nodes,
+            "on_btn_add_node_clicked" : self.add_node,
+            "on_btn_remove_node_clicked": self.remove_node,
         }
 
         self.builder.connect_signals(signals)
 
-        self.get_service_status()
-        get_info = subprocess.check_output("fujicoind getinfo | grep -v } | grep -v {; exit 0", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_home.set_text(get_info.decode())
-        get_balance = subprocess.check_output("fujicoind getbalance; exit 0", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_balance.set_text(get_balance.decode())
-        get_difficulty = subprocess.check_output("fujicoind getdifficulty; exit 0", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_difficulty.set_text(get_difficulty.decode())
-        get_blockcount = subprocess.check_output("fujicoind getblockcount; exit 0", stderr=subprocess.STDOUT, shell=True)
-        self.lbl_blockcount.set_text(get_blockcount.decode())
+        self.open_home(self)
 
-        self.term_debug = self.create_terminal()
-        self.hbox_vte_debug_log.add(self.terminal)
-
-        self.term_db = self.create_terminal()
-        self.hbox_vte_db_log.add(self.terminal)
 
          # CSS Style
         cssProvider = Gtk.CssProvider()
-        cssProvider.load_from_path(CSS_DIR + '/style.css')
+        cssProvider.load_from_path(CSS_FILE)
         screen = Gdk.Screen.get_default()
         styleContext = Gtk.StyleContext()
         styleContext.add_provider_for_screen(screen, cssProvider,

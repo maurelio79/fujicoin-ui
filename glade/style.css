@@ -1,17 +1,22 @@
-GtkWindow, GtkMenu, GtkImageMenuItem, GtkMenuItem, GtkNotebook, GtkGrid, GtkButton {
+GtkWindow, GtkMenu, GtkImageMenuItem,
+GtkMenuItem, GtkNotebook, GtkGrid,
+GtkButton, GtkListBox {
     background-color: #333;
     background: #333;
 }
-
-GtkPaned {
-    border: none;
-}
-
 GtkButton:hover, GtkMenuItem:hover {
     background-color: #666;
     background: #666;
 }
-
+GtkListBoxRow {
+    background: #666;
+}
+GtkListBoxRow:selected {
+    background: #990000;
+}
+GtkPaned. GtkScrolledWindow, GtkViewport {
+    border: none;
+}
 GtkLabel {
     color: #fff;
 }
