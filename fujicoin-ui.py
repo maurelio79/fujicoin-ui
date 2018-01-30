@@ -123,13 +123,10 @@ class FujiCoin(object):
         try:
             j_nodes = json.loads(connected_node)
             if len(j_nodes) > 0:
-                print "Dentro if\n"
                 for i in range(len(j_nodes)):
                     node_name = j_nodes[i]['addednode']
                     connected = str(j_nodes[i]['connected'])
-                    print node_name
                     self.hboxRowNode = Gtk.HBox()
-                    print self.hboxRowNode
                     self.listbox_nodes.add(self.hboxRowNode)
                     self.lbl_node_name = Gtk.Label()
                     self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
@@ -142,7 +139,7 @@ class FujiCoin(object):
                     self.lbl_node_connected.show()
                     self.listbox_nodes.show()
             else:
-                print "No JSON"
+                pass
                 #self.hboxRowNode = Gtk.HBox()
                 #self.listbox_nodes.add(self.hboxRowNode)
                 #self.lbl_node_name = Gtk.Label()
@@ -182,7 +179,11 @@ class FujiCoin(object):
         label = hbox[0].get_children()
         node_name = label[0].get_text()
         os.system('fujicoind addnode %s remove' %(node_name))
-        row.destroy()
+        try:
+            row.destroy()
+        except:
+            pass
+        self.open_nodes(self)
 
     def __init__(self):
 
