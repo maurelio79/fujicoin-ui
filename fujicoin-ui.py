@@ -86,6 +86,7 @@ class FujiCoin(object):
             self.btn_service_stop.set_sensitive(True)
             get_info = subprocess.check_output("fujicoind getinfo | grep -v } | grep -v {; exit 0", stderr=subprocess.STDOUT, shell=True)
             self.lbl_home.set_text(get_info.decode())
+            
     def stop_service(self, widget):
         os.system('fujicoind stop')
         time.sleep(1)
@@ -94,6 +95,7 @@ class FujiCoin(object):
             self.lbl_info_service.set_text('Fujicoind is Stopped')
             self.btn_service_stop.set_sensitive(False)
             self.btn_service_start.set_sensitive(True)
+
     def open_home(self, widget):
         self.get_service_status()
         get_info = subprocess.check_output("fujicoind getinfo; exit 0", stderr=subprocess.STDOUT, shell=True)
@@ -110,6 +112,7 @@ class FujiCoin(object):
         self.lbl_difficulty.set_text("Difficulty: " + str(difficulty))
         self.lbl_errors.set_text("Errors: " + str(errors))
         self.notebook.set_current_page(0)
+
     def open_nodes(self, widget):
         self.listbox_nodes.destroy()
         self.listbox_nodes = Gtk.ListBox()
