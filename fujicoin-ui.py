@@ -1,7 +1,13 @@
 #!/usr/bin/env python
-
-import gi, os, subprocess, time, ConfigParser
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
+#try:
+#    import simplejson as json
+#except ImportError:
 import simplejson as json
+import gi, os, subprocess, time
 gi.require_version('Gtk', '3.0')
 gi.require_version('Vte', '2.91')
 gi.require_version('GConf', '2.0')
