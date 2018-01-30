@@ -84,9 +84,8 @@ class FujiCoin(object):
             self.lbl_info_service.set_text('Fujicoind Server is running with pid ' + pid.decode())
             self.btn_service_start.set_sensitive(False)
             self.btn_service_stop.set_sensitive(True)
-            get_info = subprocess.check_output("fujicoind getinfo | grep -v } | grep -v {; exit 0", stderr=subprocess.STDOUT, shell=True)
-            self.lbl_home.set_text(get_info.decode())
-            
+            self.open_home(self)
+
     def stop_service(self, widget):
         os.system('fujicoind stop')
         time.sleep(1)
@@ -99,18 +98,21 @@ class FujiCoin(object):
     def open_home(self, widget):
         self.get_service_status()
         get_info = subprocess.check_output("fujicoind getinfo; exit 0", stderr=subprocess.STDOUT, shell=True)
-        j_info = json.loads(get_info)
-        balance = j_info['balance']
-        blocks = j_info['blocks']
-        difficulty = j_info['difficulty']
-        errors = j_info['errors']
-        label_list = [self.lbl_balance, self.lbl_blocks, self.lbl_errors, self.lbl_difficulty]
-        for i in label_list:
-            i.set_text("")
-        self.lbl_balance.set_text("Balance: " + str(balance))
-        self.lbl_blocks.set_text("Blocks: " + str(blocks))
-        self.lbl_difficulty.set_text("Difficulty: " + str(difficulty))
-        self.lbl_errors.set_text("Errors: " + str(errors))
+        try:
+            j_info = json.loads(get_info)
+            balance = j_info['balance']
+            blocks = j_info['blocks']
+            difficulty = j_info['difficulty']
+            errors = j_info['errors']
+            label_list = [self.lbl_balance, self.lbl_blocks, self.lbl_errors, self.lbl_difficulty]
+            for i in label_list:
+                i.set_text("")
+            self.lbl_balance.set_text("Balance: " + str(balance))
+            self.lbl_blocks.set_text("Blocks: " + str(blocks))
+            self.lbl_difficulty.set_text("Difficulty: " + str(difficulty))
+            self.lbl_errors.set_text("Errors: " + str(errors))
+        except:
+            pass
         self.notebook.set_current_page(0)
 
     def open_nodes(self, widget):
@@ -118,26 +120,29 @@ class FujiCoin(object):
         self.listbox_nodes = Gtk.ListBox()
         self.vbox_cont_nodes.pack_start(self.listbox_nodes, False, False, 0)
         connected_node = subprocess.check_output("fujicoind getaddednodeinfo true; exit 0",  stderr=subprocess.STDOUT, shell=True)
-        j_nodes = json.loads(connected_node)
-        if len(j_nodes) > 0:
-            for i in range(len(j_nodes)):
-                node_name = j_nodes[i]['addednode']
-                connected = str(j_nodes[i]['connected'])
+        try:
+            j_nodes = json.loads(connected_node)
+            if len(j_nodes) > 0:
+                for i in range(len(j_nodes)):
+                    node_name = j_nodes[i]['addednode']
+                    connected = str(j_nodes[i]['connected'])
+                    self.hboxRowNode = Gtk.HBox()
+                    self.listbox_nodes.add(self.hboxRowNode)
+                    self.lbl_node_name = Gtk.Label()
+                    self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
+                    self.lbl_node_connected = Gtk.Label()
+                    self.hboxRowNode.pack_start(self.lbl_node_connected, True, True, 5)
+                    self.lbl_node_name.set_text(node_name)
+                    self.lbl_node_connected.set_text(connected)
+            else:
                 self.hboxRowNode = Gtk.HBox()
                 self.listbox_nodes.add(self.hboxRowNode)
                 self.lbl_node_name = Gtk.Label()
                 self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
                 self.lbl_node_connected = Gtk.Label()
                 self.hboxRowNode.pack_start(self.lbl_node_connected, True, True, 5)
-                self.lbl_node_name.set_text(node_name)
-                self.lbl_node_connected.set_text(connected)
-        else:
-            self.hboxRowNode = Gtk.HBox()
-            self.listbox_nodes.add(self.hboxRowNode)
-            self.lbl_node_name = Gtk.Label()
-            self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
-            self.lbl_node_connected = Gtk.Label()
-            self.hboxRowNode.pack_start(self.lbl_node_connected, True, True, 5)
+        except:
+            pass
 
 
         self.hboxRowNode.show()
