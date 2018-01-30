@@ -159,7 +159,8 @@ class FujiCoin(object):
     def add_node(self, widget):
         node_name = self.txt_node_name.get_text()
         os.system('fujicoind addnode %s add' %(node_name))
-        connected_node = subprocess.check_output("fujicoind getaddednodeinfo true " + node_name, stderr=subprocess.STDOUT, shell=True)
+        self.open_nodes(self)
+        """connected_node = subprocess.check_output("fujicoind getaddednodeinfo true " + node_name, stderr=subprocess.STDOUT, shell=True)
         j_nodes = json.loads(connected_node)
 
         node_name = j_nodes[0]['addednode']
@@ -176,7 +177,7 @@ class FujiCoin(object):
 
         self.hboxRowNode.show()
         self.lbl_node_name.show()
-        self.lbl_node_connected.show()
+        self.lbl_node_connected.show()"""
 
     def remove_node(self, widget):
         row = self.listbox_nodes.get_selected_rows()
@@ -184,10 +185,6 @@ class FujiCoin(object):
         label = hbox[0].get_children()
         node_name = label[0].get_text()
         os.system('fujicoind addnode %s remove' %(node_name))
-        try:
-            row.destroy()
-        except:
-            pass
         self.open_nodes(self)
 
     def __init__(self):
