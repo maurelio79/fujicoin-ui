@@ -123,10 +123,13 @@ class FujiCoin(object):
         try:
             j_nodes = json.loads(connected_node)
             if len(j_nodes) > 0:
+                print "Dentro if\n"
                 for i in range(len(j_nodes)):
                     node_name = j_nodes[i]['addednode']
                     connected = str(j_nodes[i]['connected'])
+                    print node_name
                     self.hboxRowNode = Gtk.HBox()
+                    print self.hboxRowNode
                     self.listbox_nodes.add(self.hboxRowNode)
                     self.lbl_node_name = Gtk.Label()
                     self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
@@ -134,21 +137,20 @@ class FujiCoin(object):
                     self.hboxRowNode.pack_start(self.lbl_node_connected, True, True, 5)
                     self.lbl_node_name.set_text(node_name)
                     self.lbl_node_connected.set_text(connected)
+                    self.hboxRowNode.show()
+                    self.lbl_node_name.show()
+                    self.lbl_node_connected.show()
+                    self.listbox_nodes.show()
             else:
-                self.hboxRowNode = Gtk.HBox()
-                self.listbox_nodes.add(self.hboxRowNode)
-                self.lbl_node_name = Gtk.Label()
-                self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
-                self.lbl_node_connected = Gtk.Label()
-                self.hboxRowNode.pack_start(self.lbl_node_connected, True, True, 5)
+                print "No JSON"
+                #self.hboxRowNode = Gtk.HBox()
+                #self.listbox_nodes.add(self.hboxRowNode)
+                #self.lbl_node_name = Gtk.Label()
+                #self.hboxRowNode.pack_start(self.lbl_node_name, True, True, 5)
+                #self.lbl_node_connected = Gtk.Label()
+                #self.hboxRowNode.pack_start(self.lbl_node_connected, True, True, 5)
         except:
             pass
-
-
-        self.hboxRowNode.show()
-        self.lbl_node_name.show()
-        self.lbl_node_connected.show()
-        self.listbox_nodes.show()
 
         self.notebook.set_current_page(4)
 
