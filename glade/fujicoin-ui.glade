@@ -12,6 +12,21 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-file</property>
   </object>
+  <object class="GtkImage" id="image2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-convert</property>
+  </object>
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-save-as</property>
+  </object>
+  <object class="GtkImage" id="image4">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-dialog-question</property>
+  </object>
   <object class="GtkImage" id="nodes_png">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -61,40 +76,40 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkMenuItem" id="menuitem1">
+              <object class="GtkMenuItem" id="menu_wallet">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">_File</property>
+                <property name="label" translatable="yes">_Wallet</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
-                  <object class="GtkMenu" id="menu1">
+                  <object class="GtkMenu" id="menuWallet">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem1">
-                        <property name="label">gtk-new</property>
+                      <object class="GtkImageMenuItem" id="encrypt_wallet">
+                        <property name="label">Encrypt Wallet</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="image">image2</property>
+                        <property name="use_stock">False</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem2">
-                        <property name="label">gtk-open</property>
+                      <object class="GtkImageMenuItem" id="backup_wallet">
+                        <property name="label">Backup Wallet</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="image">image3</property>
+                        <property name="use_stock">False</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem3">
-                        <property name="label">gtk-save</property>
+                      <object class="GtkImageMenuItem" id="wallet_version">
+                        <property name="label">Wallet Version</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="image">image4</property>
+                        <property name="use_stock">False</property>
                       </object>
                     </child>
                     <child>
@@ -389,6 +404,7 @@
                                 <property name="margin_top">32</property>
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">20</property>
+                                <property name="homogeneous">True</property>
                                 <child>
                                   <object class="GtkLabel" id="lbl_balance">
                                     <property name="visible">True</property>
@@ -426,7 +442,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="label" translatable="yes">Difficulty: </property>
-                                    <property name="xalign">0.10000000149011612</property>
+                                    <property name="xalign">0.10999999940395355</property>
                                     <attributes>
                                       <attribute name="size" value="15000"/>
                                     </attributes>
@@ -442,7 +458,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="label" translatable="yes">Errors: </property>
-                                    <property name="xalign">0.10000000149011612</property>
+                                    <property name="xalign">0.090000003576278687</property>
                                     <attributes>
                                       <attribute name="size" value="15000"/>
                                     </attributes>
@@ -458,6 +474,32 @@
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
                                 <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkBox" id="box1">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkImage" id="image5">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="xalign">0.94999998807907104</property>
+                                    <property name="yalign">0.94999998807907104</property>
+                                    <property name="pixbuf">media/newlogo_fujicoin-408x80.png</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
