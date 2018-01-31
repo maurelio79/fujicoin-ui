@@ -159,6 +159,45 @@ class FujiCoin(object):
 
         self.notebook.set_current_page(1)
 
+    def open_receive(self, widget):
+        self.listbox_receive.destroy()
+        self.listbox_receive = Gtk.ListBox()
+        self.vbox_cont_receive.pack_start(self.listbox_receive, False, False, 0)
+        receive = subprocess.check_output("fujicoind listtransactions; exit 0",  stderr=subprocess.STDOUT, shell=True)
+        try:
+            j_receive = json.loads(receive)
+            if len(j_receive) > 0:
+                for i in range(len(j_receive)):
+                    account = j_receive[i]['account']
+                    category = j_receive[i]['category']
+                    amount = j_receive[i]['amount']
+                    if (category == 'receive'):
+                        self.hboxRowReceive = Gtk.HBox()
+                        self.hboxRowReceive.set_margin_top(5)
+                        self.listbox_receive.add(self.hboxRowReceive)
+                        self.lbl_receive_account = Gtk.Label()
+                        self.hboxRowReceive.pack_start(self.lbl_receive_account, True, True, 5)
+                        self.lbl_receive_category = Gtk.Label()
+                        self.hboxRowReceive.pack_start(self.lbl_receive_category, True, True, 5)
+                        self.lbl_receive_amount = Gtk.Label()
+                        self.hboxRowReceive.pack_start(self.lbl_receive_amount, True, True, 5)
+                        self.lbl_receive_account.set_text(account)
+                        self.lbl_receive_category.set_text(category)
+                        self.lbl_receive_amount.set_text(str(amount))
+                        self.hboxRowReceive.show()
+                        self.lbl_receive_account.show()
+                        self.lbl_receive_category.show()
+                        self.lbl_receive_amount.show()
+                        self.listbox_receive.show()
+                    else:
+                        pass
+                else:
+                    pass
+        except:
+            pass
+
+        self.notebook.set_current_page(2)
+
     def open_nodes(self, widget):
         self.listbox_nodes.destroy()
         self.listbox_nodes = Gtk.ListBox()
@@ -224,6 +263,9 @@ class FujiCoin(object):
         # Transaction Page
         self.vbox_cont_transaction = self.builder.get_object('vbox_cont_transaction')
         self.listbox_transaction = self.builder.get_object('listbox_transaction')
+        # Receive Page
+        self.vbox_cont_receive = self.builder.get_object('vbox_cont_receive')
+        self.listbox_receive = self.builder.get_object('listbox_receive')
         # Nodes Page
         self.vbox_cont_nodes = self.builder.get_object('vbox_cont_nodes')
         self.btn_nodes_png = self.builder.get_object('btn_nodes_png')
@@ -241,6 +283,7 @@ class FujiCoin(object):
             "on_btn_service_stop_clicked" : self.stop_service,
             "on_btn_home_clicked": self.open_home,
             "on_btn_transaction_clicked": self.open_transaction,
+            "on_btn_receive_clicked": self.open_receive,
             "on_btn_nodes_clicked": self.open_nodes,
             "on_btn_add_node_clicked" : self.add_node,
             "on_btn_remove_node_clicked": self.remove_node,
