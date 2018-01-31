@@ -1,16 +1,13 @@
 GtkWindow, GtkMenu, GtkImageMenuItem,
 GtkMenuItem, GtkNotebook, GtkGrid,
 GtkButton, GtkListBox {
-    background-color: #333;
-    background: #333;
+    background: #004080;
 }
+
 GtkButton:hover, GtkMenuItem:hover {
-    background-color: #666;
-    background: #666;
+    background: #0066cc;
 }
-GtkListBoxRow {
-    background: #666;
-}
+
 GtkListBoxRow:selected {
     background: #990000;
 }

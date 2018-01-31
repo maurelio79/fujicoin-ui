@@ -3,9 +3,6 @@ try:
     import ConfigParser
 except ImportError:
     import configparser as ConfigParser
-#try:
-#    import simplejson as json
-#except ImportError:
 import simplejson as json
 import gi, os, subprocess, time
 gi.require_version('Gtk', '3.0')
