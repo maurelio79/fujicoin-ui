@@ -193,7 +193,7 @@ class FujiCoin(object):
                         self.hboxRowTransaction.pack_start(self.lbl_tran_amount, True, True, 5)
                         self.lbl_tran_account.set_text(account)
                         self.lbl_tran_category.set_text(category)
-                        self.lbl_tran_amount.set_text(str(amount))
+                        self.lbl_tran_amount.set_text(str(format(amount, '.8f')))
                         self.hboxRowTransaction.show()
                         self.lbl_tran_account.show()
                         self.lbl_tran_category.show()
@@ -231,7 +231,7 @@ class FujiCoin(object):
                     self.hboxRowTransaction.pack_start(self.lbl_tran_amount, True, True, 5)
                     self.lbl_tran_account.set_text(account)
                     self.lbl_tran_category.set_text(category)
-                    self.lbl_tran_amount.set_text(str(amount))
+                    self.lbl_tran_amount.set_text(str(format(amount, '.8f')))
                     self.hboxRowTransaction.show()
                     self.lbl_tran_account.show()
                     self.lbl_tran_category.show()
@@ -282,6 +282,9 @@ class FujiCoin(object):
             pass
 
         self.notebook.set_current_page(2)
+
+    def open_send(self, widget):
+        self.notebook.set_current_page(3)
 
     def open_nodes(self, widget):
         self.listbox_nodes.destroy()
@@ -374,6 +377,7 @@ class FujiCoin(object):
             "on_btn_transaction_clicked": self.open_transaction,
             "on_drp_tran_account_changed": self.set_filter_tran,
             "on_drp_tran_category_changed": self.set_filter_tran,
+            "on_btn_send_clicked": self.open_send,
             "on_btn_receive_clicked": self.open_receive,
             "on_btn_nodes_clicked": self.open_nodes,
             "on_btn_add_node_clicked" : self.add_node,
