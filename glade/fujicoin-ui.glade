@@ -229,7 +229,6 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="wide_handle">True</property>
-            <signal name="move-handle" handler="on_paned_move_handle" swapped="no"/>
             <child>
               <object class="GtkBox" id="vbox_sidebar">
                 <property name="visible">True</property>

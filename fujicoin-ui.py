@@ -240,7 +240,7 @@ class FujiCoin(object):
             else:
                 pass
         except:
-            print "Unexpected error:", sys.exc_info()[0]
+            print ("Unexpected error:", sys.exc_info()[0])
 
         self.notebook.set_current_page(1)
 
