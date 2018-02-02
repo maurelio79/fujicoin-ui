@@ -11,6 +11,6 @@ Work in progress!!
 
 Some screenshot:
 
-<img src="https://github.com/maurelio79/fujicoin-ui/blob/master/glade/media/screenshot-01.png?raw=true" /><br />
-<img src="https://github.com/maurelio79/fujicoin-ui/blob/master/glade/media/screenshot-02.png?raw=true" /><br />
+<img src="https://github.com/maurelio79/fujicoin-ui/blob/master/glade/media/screenshot-03.png?raw=true" /><br />
+<img src="https://github.com/maurelio79/fujicoin-ui/blob/master/glade/media/screenshot-04.png?raw=true" /><br />
 =======
