@@ -48,9 +48,6 @@ def gladefile(x):
     return os.path.abspath(f)
 
 class FujiCoin(object):
-    def passit(self, widget):
-        print "move"
-
     def create_terminal(self):
         self.terminal   = Vte.Terminal()
         self.terminal.spawn_sync(
@@ -371,7 +368,6 @@ class FujiCoin(object):
         signals = {
             "on_window-root_destroy" : Gtk.main_quit,
             "on_menu_debug_log_activate": self.tail_debug_log,
-            "on_paned_move_handle": self.passit,
             "on_btn_service_start_clicked" : self.start_service,
             "on_btn_service_stop_clicked" : self.stop_service,
             "on_btn_home_clicked": self.open_home,
