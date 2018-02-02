@@ -4,11 +4,11 @@ try:
 except ImportError:
     import configparser as ConfigParser
 import simplejson as json
-import gi, os, subprocess, time
+import gi, os, subprocess, time, sys
 gi.require_version('Gtk', '3.0')
 gi.require_version('Vte', '2.91')
 gi.require_version('GConf', '2.0')
-from gi.repository import Gtk, Gdk, Vte, GLib, Pango, GConf, GdkPixbuf
+from gi.repository import Gtk, Gdk, Vte, GLib, Pango, GConf, GdkPixbuf, GObject
 from os.path import expanduser
 
 
@@ -48,6 +48,9 @@ def gladefile(x):
     return os.path.abspath(f)
 
 class FujiCoin(object):
+    def passit(self, widget):
+        print "move"
+
     def create_terminal(self):
         self.terminal   = Vte.Terminal()
         self.terminal.spawn_sync(
@@ -123,7 +126,92 @@ class FujiCoin(object):
             pass
         self.notebook.set_current_page(0)
 
+    def get_transaction(self, widget):
+        list_account = []
+        list_category = []
+        #dict_tran = {}
+        #list_tran = []
+        transactions = subprocess.check_output("fujicoind listtransactions; exit 0",  stderr=subprocess.STDOUT, shell=True)
+        try:
+            j_transactions = json.loads(transactions)
+            if len(j_transactions) > 0:
+                for i in range(len(j_transactions)):
+                    account = j_transactions[i]['account']
+                    category = j_transactions[i]['category']
+                    amount = j_transactions[i]['amount']
+                    if account not in list_account:
+                        list_account.append(account)
+                    else:
+                        pass
+                    if category not in list_category:
+                        list_category.append(category)
+                    else:
+                        pass
+                    #dict_tran.update({"account" : account, "category" : category, "amount" : amount})
+                #list_tran.append(dict_tran)
+                return [list_account, list_category]
+            else:
+                pass
+        except:
+            pass
+
+    def populate_drp_tran(self, widget):
+        list_account = self.get_transaction(self)[0]
+        list_category = self.get_transaction(self)[1]
+        self.drp_tran_account.remove_all()
+        self.drp_tran_category.remove_all()
+        self.drp_tran_account.append_text("ALL")
+        self.drp_tran_category.append_text("ALL")
+        for i in range(len(list_account)):
+            self.drp_tran_account.append_text(list_account[i])
+        for i in range(len(list_category)):
+            self.drp_tran_category.append_text(list_category[i])
+        self.drp_tran_account.set_active(0)
+        self.drp_tran_category.set_active(0)
+
+    def set_filter_tran(self, widget):
+        #transactions = self.get_transaction(self)[0]
+        transactions = subprocess.check_output("fujicoind listtransactions; exit 0",  stderr=subprocess.STDOUT, shell=True)
+        self.listbox_transaction.destroy()
+        self.listbox_transaction = Gtk.ListBox()
+        self.vbox_cont_transaction.pack_start(self.listbox_transaction, False, False, 0)
+        account_text = self.drp_tran_account.get_active_text()
+        category_text = self.drp_tran_category.get_active_text()
+        try:
+            j_transactions = json.loads(transactions)
+            if len(j_transactions) > 0:
+                for i in range(len(j_transactions)):
+                    account = j_transactions[i]['account']
+                    category = j_transactions[i]['category']
+                    amount = j_transactions[i]['amount']
+                    if ((account_text == "ALL" or account_text == account) and (category_text == "ALL" or category_text == category)):
+                        self.hboxRowTransaction = Gtk.HBox()
+                        self.hboxRowTransaction.set_margin_top(5)
+                        self.listbox_transaction.add(self.hboxRowTransaction)
+                        self.lbl_tran_account = Gtk.Label()
+                        self.hboxRowTransaction.pack_start(self.lbl_tran_account, True, True, 5)
+                        self.lbl_tran_category = Gtk.Label()
+                        self.hboxRowTransaction.pack_start(self.lbl_tran_category, True, True, 5)
+                        self.lbl_tran_amount = Gtk.Label()
+                        self.hboxRowTransaction.pack_start(self.lbl_tran_amount, True, True, 5)
+                        self.lbl_tran_account.set_text(account)
+                        self.lbl_tran_category.set_text(category)
+                        self.lbl_tran_amount.set_text(str(amount))
+                        self.hboxRowTransaction.show()
+                        self.lbl_tran_account.show()
+                        self.lbl_tran_category.show()
+                        self.lbl_tran_amount.show()
+                        self.listbox_transaction.show()
+                    else:
+                        pass
+            else:
+                pass
+        except:
+            pass
+
     def open_transaction(self, widget):
+        self.populate_drp_tran(self)
+        #transactions = self.get_transaction(self)[0]
         self.listbox_transaction.destroy()
         self.listbox_transaction = Gtk.ListBox()
         self.vbox_cont_transaction.pack_start(self.listbox_transaction, False, False, 0)
@@ -152,10 +240,10 @@ class FujiCoin(object):
                     self.lbl_tran_category.show()
                     self.lbl_tran_amount.show()
                     self.listbox_transaction.show()
-                else:
-                    pass
+            else:
+                pass
         except:
-            pass
+            print "Unexpected error:", sys.exc_info()[0]
 
         self.notebook.set_current_page(1)
 
@@ -250,6 +338,8 @@ class FujiCoin(object):
         self.builder = Gtk.Builder()
         self.builder.add_from_file(gladefile('fujicoin-ui.glade'))
 
+        self.btn_receive = self.builder.get_object('btn_receive')
+
         self.lbl_info_service = self.builder.get_object('lbl_info_service')
         # Notebbok
         self.notebook = self.builder.get_object('notebook')
@@ -263,6 +353,8 @@ class FujiCoin(object):
         # Transaction Page
         self.vbox_cont_transaction = self.builder.get_object('vbox_cont_transaction')
         self.listbox_transaction = self.builder.get_object('listbox_transaction')
+        self.drp_tran_account = self.builder.get_object('drp_tran_account')
+        self.drp_tran_category = self.builder.get_object('drp_tran_category')
         # Receive Page
         self.vbox_cont_receive = self.builder.get_object('vbox_cont_receive')
         self.listbox_receive = self.builder.get_object('listbox_receive')
@@ -279,10 +371,13 @@ class FujiCoin(object):
         signals = {
             "on_window-root_destroy" : Gtk.main_quit,
             "on_menu_debug_log_activate": self.tail_debug_log,
+            "on_paned_move_handle": self.passit,
             "on_btn_service_start_clicked" : self.start_service,
             "on_btn_service_stop_clicked" : self.stop_service,
             "on_btn_home_clicked": self.open_home,
             "on_btn_transaction_clicked": self.open_transaction,
+            "on_drp_tran_account_changed": self.set_filter_tran,
+            "on_drp_tran_category_changed": self.set_filter_tran,
             "on_btn_receive_clicked": self.open_receive,
             "on_btn_nodes_clicked": self.open_nodes,
             "on_btn_add_node_clicked" : self.add_node,
@@ -290,6 +385,8 @@ class FujiCoin(object):
         }
 
         self.builder.connect_signals(signals)
+
+        self.btn_receive.hide()
 
         self.open_home(self)
 
