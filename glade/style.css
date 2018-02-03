@@ -3,7 +3,7 @@ GtkWindow, GtkMenu, GtkImageMenuItem,
 GtkButton, GtkListBox {
     background: #004080;
 }
-/*GtkMenuItem,*/
+
 GtkButton:hover, GtkMenuItem:hover {
     background: #0066cc;
 }
@@ -16,4 +16,17 @@ GtkPaned. GtkScrolledWindow, GtkViewport {
 }
 GtkLabel, GtkComboBoxText *, GtkSeparator {
     color: #fff;
+}
+
+/* Style for GTK 3.22*/
+
+window, button, menu, menubar, menubar > menuitem {
+    background-image: none;
+    background-color: #004080;
+}
+label {
+    color: #fff;
+}
+button:hover, menubar > menuitem:hover {
+    background: #0066cc;
 }
