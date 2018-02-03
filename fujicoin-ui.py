@@ -62,6 +62,7 @@ class FujiCoin(object):
         self.terminal.set_scrollback_lines(5000)
         self.terminal.set_scroll_on_output(True)
         self.terminal.set_rewrap_on_resize(True)
+        self.terminal.set_sensitive(True)
         return self.terminal
 
     def tail_debug_log(self, widget):
@@ -120,7 +121,7 @@ class FujiCoin(object):
             self.lbl_difficulty.set_text("Difficulty: " + str(difficulty))
             self.lbl_errors.set_text("Errors: " + str(errors))
         except:
-            pass
+            print ("Unexpected error:", sys.exc_info()[0])
         self.notebook.set_current_page(0)
 
     def get_transaction(self, widget):
@@ -150,21 +151,24 @@ class FujiCoin(object):
             else:
                 pass
         except:
-            pass
+            print ("Unexpected error:", sys.exc_info()[0])
 
     def populate_drp_tran(self, widget):
-        list_account = self.get_transaction(self)[0]
-        list_category = self.get_transaction(self)[1]
         self.drp_tran_account.remove_all()
         self.drp_tran_category.remove_all()
         self.drp_tran_account.append_text("ALL")
         self.drp_tran_category.append_text("ALL")
-        for i in range(len(list_account)):
-            self.drp_tran_account.append_text(list_account[i])
-        for i in range(len(list_category)):
-            self.drp_tran_category.append_text(list_category[i])
-        self.drp_tran_account.set_active(0)
-        self.drp_tran_category.set_active(0)
+        try:
+            list_account = self.get_transaction(self)[0]
+            list_category = self.get_transaction(self)[1]
+            for i in range(len(list_account)):
+                self.drp_tran_account.append_text(list_account[i])
+            for i in range(len(list_category)):
+                self.drp_tran_category.append_text(list_category[i])
+            self.drp_tran_account.set_active(0)
+            self.drp_tran_category.set_active(0)
+        except:
+            print ("Unexpected error:", sys.exc_info()[0])
 
     def set_filter_tran(self, widget):
         #transactions = self.get_transaction(self)[0]
@@ -204,7 +208,7 @@ class FujiCoin(object):
             else:
                 pass
         except:
-            pass
+            print ("Unexpected error:", sys.exc_info()[0])
 
     def open_transaction(self, widget):
         self.populate_drp_tran(self)
@@ -279,11 +283,23 @@ class FujiCoin(object):
                 else:
                     pass
         except:
-            pass
+            print ("Unexpected error:", sys.exc_info()[0])
 
         self.notebook.set_current_page(2)
 
+    def populate_drp_move(self, widget):
+        try:
+            list_account = subprocess.check_output("fujicoind listaccounts; exit 0",  stderr=subprocess.STDOUT, shell=True)
+            j_accounts = json.loads(list_account)
+            for key in j_accounts:
+                print key
+            else:
+                pass
+        except:
+            pass
+
     def open_send(self, widget):
+        self.populate_drp_move(self)
         self.notebook.set_current_page(3)
 
     def open_nodes(self, widget):
@@ -313,7 +329,7 @@ class FujiCoin(object):
             else:
                 pass
         except:
-            pass
+            print ("Unexpected error:", sys.exc_info()[0])
 
         self.notebook.set_current_page(4)
 
