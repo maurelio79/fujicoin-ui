@@ -172,12 +172,16 @@ class FujiCoin(object):
 
     def set_filter_tran(self, widget):
         #transactions = self.get_transaction(self)[0]
-        transactions = subprocess.check_output("fujicoind listtransactions; exit 0",  stderr=subprocess.STDOUT, shell=True)
         self.listbox_transaction.destroy()
         self.listbox_transaction = Gtk.ListBox()
         self.vbox_cont_transaction.pack_start(self.listbox_transaction, False, False, 0)
-        account_text = self.drp_tran_account.get_active_text()
-        category_text = self.drp_tran_category.get_active_text()
+        count = str(int(self.spin_count_tran.get_value()))
+        try:
+            transactions = subprocess.check_output("fujicoind listtransactions \"*\" " + count + " 0; exit 0",  stderr=subprocess.STDOUT, shell=True)
+            account_text = self.drp_tran_account.get_active_text()
+            category_text = self.drp_tran_category.get_active_text()
+        except:
+            print ("Unexpected error:", sys.exc_info()[0])
         try:
             j_transactions = json.loads(transactions)
             if len(j_transactions) > 0:
@@ -212,11 +216,12 @@ class FujiCoin(object):
 
     def open_transaction(self, widget):
         self.populate_drp_tran(self)
+        count = str(int(self.spin_count_tran.get_value()))
         #transactions = self.get_transaction(self)[0]
         self.listbox_transaction.destroy()
         self.listbox_transaction = Gtk.ListBox()
         self.vbox_cont_transaction.pack_start(self.listbox_transaction, False, False, 0)
-        transactions = subprocess.check_output("fujicoind listtransactions; exit 0",  stderr=subprocess.STDOUT, shell=True)
+        transactions = subprocess.check_output("fujicoind listtransactions \"*\" " + count + " 0 ; exit 0",  stderr=subprocess.STDOUT, shell=True)
         try:
             j_transactions = json.loads(transactions)
             if len(j_transactions) > 0:
@@ -396,6 +401,7 @@ class FujiCoin(object):
         self.listbox_transaction = self.builder.get_object('listbox_transaction')
         self.drp_tran_account = self.builder.get_object('drp_tran_account')
         self.drp_tran_category = self.builder.get_object('drp_tran_category')
+        self.spin_count_tran = self.builder.get_object('spin_count_tran')
         # Send Page
         self.drp_from_move = self.builder.get_object('drp_from_move')
         self.drp_to_move = self.builder.get_object('drp_to_move')
@@ -426,6 +432,7 @@ class FujiCoin(object):
             "on_btn_transaction_clicked": self.open_transaction,
             "on_drp_tran_account_changed": self.set_filter_tran,
             "on_drp_tran_category_changed": self.set_filter_tran,
+            "on_spin_count_tran_value_changed": self.set_filter_tran,
             "on_btn_send_clicked": self.open_send,
             "on_btn_move_clicked": self.move_coin,
             "on_btn_receive_clicked": self.open_receive,
