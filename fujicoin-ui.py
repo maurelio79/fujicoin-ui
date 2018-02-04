@@ -124,54 +124,19 @@ class FujiCoin(object):
             print ("Open_Home Unexpected error:", sys.exc_info())
         self.notebook.set_current_page(0)
 
-    def get_transaction(self, widget):
-        list_account = []
-        list_category = []
-        #dict_tran = {}
-        #list_tran = []
-        transactions = subprocess.check_output("fujicoind listtransactions; exit 0",  stderr=subprocess.STDOUT, shell=True)
-        try:
-            j_transactions = json.loads(transactions)
-            if len(j_transactions) > 0:
-                for i in range(len(j_transactions)):
-                    account = j_transactions[i]['account']
-                    category = j_transactions[i]['category']
-                    amount = j_transactions[i]['amount']
-                    if account not in list_account:
-                        list_account.append(account)
-                    else:
-                        pass
-                    if category not in list_category:
-                        list_category.append(category)
-                    else:
-                        pass
-                    #dict_tran.update({"account" : account, "category" : category, "amount" : amount})
-                #list_tran.append(dict_tran)
-                return [list_account, list_category]
-            else:
-                pass
-        except:
-            print ("Get_Transaction Unexpected error:", sys.exc_info())
-
     def populate_drp_tran(self, widget):
         self.drp_tran_account.remove_all()
-        self.drp_tran_category.remove_all()
         self.drp_tran_account.append_text("ALL")
-        self.drp_tran_category.append_text("ALL")
+        list_account = subprocess.check_output("fujicoind listaccounts; exit 0",  stderr=subprocess.STDOUT, shell=True)
+        j_accounts = json.loads(list_account)
+        for key in j_accounts:
+            if (key != ""):
+                self.drp_tran_account.append_text(key)
+            else:
+                pass
         self.drp_tran_account.set_active(0)
-        self.drp_tran_category.set_active(0)
-        try:
-            list_account = self.get_transaction(self)[0]
-            list_category = self.get_transaction(self)[1]
-            for i in range(len(list_account)):
-                self.drp_tran_account.append_text(list_account[i])
-            for i in range(len(list_category)):
-                self.drp_tran_category.append_text(list_category[i])
-        except:
-            print ("Populate_Drp_Tran Unexpected error:", sys.exc_info())
 
     def set_filter_tran(self, widget):
-        #transactions = self.get_transaction(self)[0]
         self.listbox_transaction.destroy()
         self.listbox_transaction = Gtk.ListBox()
         self.vbox_cont_transaction.pack_start(self.listbox_transaction, False, False, 0)
@@ -226,7 +191,6 @@ class FujiCoin(object):
         if (account_text == "ALL"):
             account_text = "*"
         count = str(int(self.spin_count_tran.get_value()))
-        #transactions = self.get_transaction(self)[0]
         transactions = subprocess.check_output("fujicoind listtransactions \"" + account_text + "\" " + count + " 0 ; exit 0",  stderr=subprocess.STDOUT, shell=True)
         try:
             j_transactions = json.loads(transactions)
@@ -258,45 +222,6 @@ class FujiCoin(object):
             print ("Open Transaction Unexpected error:", sys.exc_info())
 
         self.notebook.set_current_page(1)
-
-    def open_receive(self, widget):
-        self.listbox_receive.destroy()
-        self.listbox_receive = Gtk.ListBox()
-        self.vbox_cont_receive.pack_start(self.listbox_receive, False, False, 0)
-        receive = subprocess.check_output("fujicoind listtransactions; exit 0",  stderr=subprocess.STDOUT, shell=True)
-        try:
-            j_receive = json.loads(receive)
-            if len(j_receive) > 0:
-                for i in range(len(j_receive)):
-                    account = j_receive[i]['account']
-                    category = j_receive[i]['category']
-                    amount = j_receive[i]['amount']
-                    if (category == 'receive'):
-                        self.hboxRowReceive = Gtk.HBox()
-                        self.hboxRowReceive.set_margin_top(5)
-                        self.listbox_receive.add(self.hboxRowReceive)
-                        self.lbl_receive_account = Gtk.Label()
-                        self.hboxRowReceive.pack_start(self.lbl_receive_account, True, True, 5)
-                        self.lbl_receive_category = Gtk.Label()
-                        self.hboxRowReceive.pack_start(self.lbl_receive_category, True, True, 5)
-                        self.lbl_receive_amount = Gtk.Label()
-                        self.hboxRowReceive.pack_start(self.lbl_receive_amount, True, True, 5)
-                        self.lbl_receive_account.set_text(account)
-                        self.lbl_receive_category.set_text(category)
-                        self.lbl_receive_amount.set_text(str(amount))
-                        self.hboxRowReceive.show()
-                        self.lbl_receive_account.show()
-                        self.lbl_receive_category.show()
-                        self.lbl_receive_amount.show()
-                        self.listbox_receive.show()
-                    else:
-                        pass
-                else:
-                    pass
-        except:
-            print ("Open_Receive Unexpected error:", sys.exc_info())
-
-        self.notebook.set_current_page(2)
 
     def populate_drp_send(self, widget):
         try:
@@ -442,7 +367,6 @@ class FujiCoin(object):
             "on_spin_count_tran_value_changed": self.set_filter_tran,
             "on_btn_send_clicked": self.open_send,
             "on_btn_move_clicked": self.move_coin,
-            "on_btn_receive_clicked": self.open_receive,
             "on_btn_nodes_clicked": self.open_nodes,
             "on_btn_add_node_clicked" : self.add_node,
             "on_btn_remove_node_clicked": self.remove_node,
