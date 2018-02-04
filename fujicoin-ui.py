@@ -121,7 +121,7 @@ class FujiCoin(object):
             self.lbl_difficulty.set_text("Difficulty: " + str(difficulty))
             self.lbl_errors.set_text("Errors: " + str(errors))
         except:
-            print ("Unexpected error:", sys.exc_info()[0])
+            print ("Open_Home Unexpected error:", sys.exc_info())
         self.notebook.set_current_page(0)
 
     def get_transaction(self, widget):
@@ -151,7 +151,7 @@ class FujiCoin(object):
             else:
                 pass
         except:
-            print ("Get_Transaction Unexpected error:", sys.exc_info()[0])
+            print ("Get_Transaction Unexpected error:", sys.exc_info())
 
     def populate_drp_tran(self, widget):
         self.drp_tran_account.remove_all()
@@ -168,7 +168,7 @@ class FujiCoin(object):
             for i in range(len(list_category)):
                 self.drp_tran_category.append_text(list_category[i])
         except:
-            print ("Unexpected error:", sys.exc_info()[0])
+            print ("Populate_Drp_Tran Unexpected error:", sys.exc_info())
 
     def set_filter_tran(self, widget):
         #transactions = self.get_transaction(self)[0]
@@ -176,7 +176,7 @@ class FujiCoin(object):
         self.listbox_transaction = Gtk.ListBox()
         self.vbox_cont_transaction.pack_start(self.listbox_transaction, False, False, 0)
         account_text = self.drp_tran_account.get_active_text()
-        if (account_text == "ALL"):
+        if (account_text == "ALL" or account_text == None):
             account_text = "*"
         count = str(int(self.spin_count_tran.get_value()))
         try:
@@ -184,7 +184,7 @@ class FujiCoin(object):
             #account_text = self.drp_tran_account.get_active_text()
             category_text = self.drp_tran_category.get_active_text()
         except:
-            print ("Unexpected error:", sys.exc_info()[0])
+            print ("Set_Filter Unexpected error:", sys.exc_info())
         try:
             j_transactions = json.loads(transactions)
             if len(j_transactions) > 0:
@@ -215,7 +215,7 @@ class FujiCoin(object):
             else:
                 pass
         except:
-            print ("Filter_Tran Unexpected error:", sys.exc_info()[0])
+            print ("Filter_Tran Unexpected error:", sys.exc_info())
 
     def open_transaction(self, widget):
         self.populate_drp_tran(self)
@@ -255,7 +255,7 @@ class FujiCoin(object):
             else:
                 pass
         except:
-            print ("Open Transaction Unexpected error:", sys.exc_info()[0])
+            print ("Open Transaction Unexpected error:", sys.exc_info())
 
         self.notebook.set_current_page(1)
 
@@ -294,7 +294,7 @@ class FujiCoin(object):
                 else:
                     pass
         except:
-            print ("Unexpected error:", sys.exc_info()[0])
+            print ("Open_Receive Unexpected error:", sys.exc_info())
 
         self.notebook.set_current_page(2)
 
@@ -316,7 +316,7 @@ class FujiCoin(object):
             self.drp_to_move.set_active(0)
             self.drp_from_send.set_active(0)
         except:
-            print ("Unexpected error:", sys.exc_info()[0])
+            print ("Populate_Drp_Send Unexpected error:", sys.exc_info())
 
     def move_coin(self, widget):
         from_account = self.drp_from_move.get_active_text()
@@ -366,7 +366,7 @@ class FujiCoin(object):
             else:
                 pass
         except:
-            print ("Unexpected error:", sys.exc_info()[0])
+            print ("Open_Nodes Unexpected error:", sys.exc_info())
 
         self.notebook.set_current_page(4)
 
