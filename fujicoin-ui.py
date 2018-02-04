@@ -287,19 +287,44 @@ class FujiCoin(object):
 
         self.notebook.set_current_page(2)
 
-    def populate_drp_move(self, widget):
+    def populate_drp_send(self, widget):
         try:
+            self.drp_from_move.remove_all()
+            self.drp_to_move.remove_all()
+            self.drp_from_send.remove_all()
             list_account = subprocess.check_output("fujicoind listaccounts; exit 0",  stderr=subprocess.STDOUT, shell=True)
             j_accounts = json.loads(list_account)
             for key in j_accounts:
-                print key
-            else:
-                pass
+                if (key != ""):
+                    self.drp_from_move.append_text(key)
+                    self.drp_to_move.append_text(key)
+                    self.drp_from_send.append_text(key)
+                else:
+                    pass
+            self.drp_from_move.set_active(0)
+            self.drp_to_move.set_active(0)
+            self.drp_from_send.set_active(0)
         except:
-            pass
+            print ("Unexpected error:", sys.exc_info()[0])
+
+    def move_coin(self, widget):
+        from_account = self.drp_from_move.get_active_text()
+        to_account = self.drp_to_move.get_active_text()
+        amount = self.spin_amount_move.get_value()
+        amount = format(amount, '.8f')
+        minconf = self.spin_minconf_move.get_value()
+        minconf = int(minconf)
+        comment = self.entry_comment_move.get_text()
+        move_coin = subprocess.check_output("fujicoind move " + from_account + " " + to_account + " " + str(amount) + " " + str(minconf) + " " + comment + "; exit 0",  stderr=subprocess.STDOUT, shell=True)
+        if (move_coin == "true"):
+            move_message = "Correctly moved " + str(amount) + " fujicoin from " + from_account + " to " + to_account
+            self.lbl_result_move.set_text(move_message)
+        else:
+            move_message = move_coin
+            self.lbl_result_move.set_text(move_message)
 
     def open_send(self, widget):
-        self.populate_drp_move(self)
+        self.populate_drp_send(self)
         self.notebook.set_current_page(3)
 
     def open_nodes(self, widget):
@@ -371,6 +396,14 @@ class FujiCoin(object):
         self.listbox_transaction = self.builder.get_object('listbox_transaction')
         self.drp_tran_account = self.builder.get_object('drp_tran_account')
         self.drp_tran_category = self.builder.get_object('drp_tran_category')
+        # Send Page
+        self.drp_from_move = self.builder.get_object('drp_from_move')
+        self.drp_to_move = self.builder.get_object('drp_to_move')
+        self.spin_amount_move = self.builder.get_object('spin_amount_move')
+        self.spin_minconf_move = self.builder.get_object('spin_minconf_move')
+        self.entry_comment_move = self.builder.get_object('entry_comment_move')
+        self.lbl_result_move = self.builder.get_object('lbl_result_move')
+        self.drp_from_send = self.builder.get_object('drp_from_send')
         # Receive Page
         self.vbox_cont_receive = self.builder.get_object('vbox_cont_receive')
         self.listbox_receive = self.builder.get_object('listbox_receive')
@@ -394,6 +427,7 @@ class FujiCoin(object):
             "on_drp_tran_account_changed": self.set_filter_tran,
             "on_drp_tran_category_changed": self.set_filter_tran,
             "on_btn_send_clicked": self.open_send,
+            "on_btn_move_clicked": self.move_coin,
             "on_btn_receive_clicked": self.open_receive,
             "on_btn_nodes_clicked": self.open_nodes,
             "on_btn_add_node_clicked" : self.add_node,
