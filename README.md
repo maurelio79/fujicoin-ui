@@ -1,10 +1,10 @@
 # fujicoin-ui
 Simple UI to manage fujicoind server.
 
-You can find fujicoin project here on github: https://github.com/fujicoin/fujicoin
-And this is the website: http://www.fujicoin.org/
+Fujicoin project on github: https://github.com/fujicoin/fujicoin<br>
+Fujicoin website: http://www.fujicoin.org/
 
-Imeges newlogo-16x16.png and newlogo_fujicoin-408x80.png are property of Fujicoin founfation.
+Imeges newlogo-16x16.png and newlogo_fujicoin-408x80.png are property of Fujicoin foundation.
 
 <b>Use this GUI at your own risk. I don't take any responsability.</b>
 This gui is just an interface to fujicoind commands.
