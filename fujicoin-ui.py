@@ -70,6 +70,26 @@ class FujiCoin(object):
         self.term_debug_log.feed_child('tail -f  ' + DEBUG_LOG + ' \n', -1)
         self.notebook.set_current_page(5)
 
+    def open_home(self, widget):
+        self.get_service_status()
+        try:
+            get_info = subprocess.check_output("fujicoind getinfo; exit 0", stderr=subprocess.STDOUT, shell=True)
+            j_info = json.loads(get_info)
+            balance = j_info['balance']
+            blocks = j_info['blocks']
+            difficulty = j_info['difficulty']
+            errors = j_info['errors']
+            label_list = [self.lbl_balance, self.lbl_blocks, self.lbl_errors, self.lbl_difficulty]
+            for i in label_list:
+                i.set_text("")
+            self.lbl_balance.set_text("Balance: " + str(balance))
+            self.lbl_blocks.set_text("Blocks: " + str(blocks))
+            self.lbl_difficulty.set_text("Difficulty: " + str(difficulty))
+            self.lbl_errors.set_text("Errors: " + str(errors))
+        except:
+            print ("Open_Home Unexpected error:", sys.exc_info())
+        self.notebook.set_current_page(0)
+
     def get_service_status(self):
         status_service = subprocess.check_output('ps -A', shell=True)
         pid = subprocess.check_output("ps -A | grep fujicoind|awk '{print $1}' ; exit 0", stderr=subprocess.STDOUT, shell=True)
@@ -104,84 +124,6 @@ class FujiCoin(object):
             self.btn_service_stop.set_sensitive(False)
             self.btn_service_start.set_sensitive(True)
 
-    def open_home(self, widget):
-        self.get_service_status()
-        get_info = subprocess.check_output("fujicoind getinfo; exit 0", stderr=subprocess.STDOUT, shell=True)
-        try:
-            j_info = json.loads(get_info)
-            balance = j_info['balance']
-            blocks = j_info['blocks']
-            difficulty = j_info['difficulty']
-            errors = j_info['errors']
-            label_list = [self.lbl_balance, self.lbl_blocks, self.lbl_errors, self.lbl_difficulty]
-            for i in label_list:
-                i.set_text("")
-            self.lbl_balance.set_text("Balance: " + str(balance))
-            self.lbl_blocks.set_text("Blocks: " + str(blocks))
-            self.lbl_difficulty.set_text("Difficulty: " + str(difficulty))
-            self.lbl_errors.set_text("Errors: " + str(errors))
-        except:
-            print ("Open_Home Unexpected error:", sys.exc_info())
-        self.notebook.set_current_page(0)
-
-    def populate_drp_tran(self, widget):
-        self.drp_tran_account.remove_all()
-        self.drp_tran_account.append_text("ALL")
-        list_account = subprocess.check_output("fujicoind listaccounts; exit 0",  stderr=subprocess.STDOUT, shell=True)
-        j_accounts = json.loads(list_account)
-        for key in j_accounts:
-            if (key != ""):
-                self.drp_tran_account.append_text(key)
-            else:
-                pass
-        self.drp_tran_account.set_active(0)
-
-    def set_filter_tran(self, widget):
-        self.listbox_transaction.destroy()
-        self.listbox_transaction = Gtk.ListBox()
-        self.vbox_cont_transaction.pack_start(self.listbox_transaction, False, False, 0)
-        account_text = self.drp_tran_account.get_active_text()
-        if (account_text == "ALL" or account_text == None):
-            account_text = "*"
-        count = str(int(self.spin_count_tran.get_value()))
-        try:
-            transactions = subprocess.check_output("fujicoind listtransactions \"" + account_text + "\" " + count + " 0; exit 0",  stderr=subprocess.STDOUT, shell=True)
-            #account_text = self.drp_tran_account.get_active_text()
-            category_text = self.drp_tran_category.get_active_text()
-        except:
-            print ("Set_Filter Unexpected error:", sys.exc_info())
-        try:
-            j_transactions = json.loads(transactions)
-            if len(j_transactions) > 0:
-                for i in range(len(j_transactions)):
-                    account = j_transactions[i]['account']
-                    category = j_transactions[i]['category']
-                    amount = j_transactions[i]['amount']
-                    if ((category_text == "ALL" or category_text == category)):
-                        self.hboxRowTransaction = Gtk.HBox()
-                        self.hboxRowTransaction.set_margin_top(5)
-                        self.listbox_transaction.add(self.hboxRowTransaction)
-                        self.lbl_tran_account = Gtk.Label()
-                        self.hboxRowTransaction.pack_start(self.lbl_tran_account, True, True, 5)
-                        self.lbl_tran_category = Gtk.Label()
-                        self.hboxRowTransaction.pack_start(self.lbl_tran_category, True, True, 5)
-                        self.lbl_tran_amount = Gtk.Label()
-                        self.hboxRowTransaction.pack_start(self.lbl_tran_amount, True, True, 5)
-                        self.lbl_tran_account.set_text(account)
-                        self.lbl_tran_category.set_text(category)
-                        self.lbl_tran_amount.set_text(str(format(amount, '.8f')))
-                        self.hboxRowTransaction.show()
-                        self.lbl_tran_account.show()
-                        self.lbl_tran_category.show()
-                        self.lbl_tran_amount.show()
-                        self.listbox_transaction.show()
-                    else:
-                        pass
-            else:
-                pass
-        except:
-            print ("Filter_Tran Unexpected error:", sys.exc_info())
-
     def open_transaction(self, widget):
         self.populate_drp_tran(self)
         self.listbox_transaction.destroy()
@@ -191,7 +133,7 @@ class FujiCoin(object):
         if (account_text == "ALL"):
             account_text = "*"
         count = str(int(self.spin_count_tran.get_value()))
-        transactions = subprocess.check_output("fujicoind listtransactions \"" + account_text + "\" " + count + " 0 ; exit 0",  stderr=subprocess.STDOUT, shell=True)
+        transactions = subprocess.check_output("fujicoind listtransactions \"" + account_text + "\" " + count + " 0; exit 0",  stderr=subprocess.STDOUT, shell=True)
         try:
             j_transactions = json.loads(transactions)
             if len(j_transactions) > 0:
@@ -223,6 +165,66 @@ class FujiCoin(object):
 
         self.notebook.set_current_page(1)
 
+    def populate_drp_tran(self, widget):
+        self.drp_tran_account.remove_all()
+        self.drp_tran_account.append_text("ALL")
+        list_account = subprocess.check_output("fujicoind listaccounts; exit 0",  stderr=subprocess.STDOUT, shell=True)
+        j_accounts = json.loads(list_account)
+        for key in j_accounts:
+            if (key != ""):
+                self.drp_tran_account.append_text(key)
+            else:
+                pass
+        self.drp_tran_account.set_active(0)
+
+    def set_filter_tran(self, widget):
+        self.listbox_transaction.destroy()
+        self.listbox_transaction = Gtk.ListBox()
+        self.vbox_cont_transaction.pack_start(self.listbox_transaction, False, False, 0)
+        account_text = self.drp_tran_account.get_active_text()
+        category_text = self.drp_tran_category.get_active_text()
+        if (account_text == "ALL" or account_text == None):
+            account_text = "*"
+        count = str(int(self.spin_count_tran.get_value()))
+        try:
+            transactions = subprocess.check_output("fujicoind listtransactions \"" + account_text + "\" " + count + " 0; exit 0",  stderr=subprocess.STDOUT, shell=True)
+            j_transactions = json.loads(transactions)
+            if len(j_transactions) > 0:
+                for i in range(len(j_transactions)):
+                    account = j_transactions[i]['account']
+                    category = j_transactions[i]['category']
+                    amount = j_transactions[i]['amount']
+                    if ((account_text == "*" or account_text == account) and (category_text == "ALL" or category_text == category)):
+                        self.hboxRowTransaction = Gtk.HBox()
+                        self.hboxRowTransaction.set_margin_top(5)
+                        self.listbox_transaction.add(self.hboxRowTransaction)
+                        self.lbl_tran_account = Gtk.Label()
+                        self.hboxRowTransaction.pack_start(self.lbl_tran_account, True, True, 5)
+                        self.lbl_tran_category = Gtk.Label()
+                        self.hboxRowTransaction.pack_start(self.lbl_tran_category, True, True, 5)
+                        self.lbl_tran_amount = Gtk.Label()
+                        self.hboxRowTransaction.pack_start(self.lbl_tran_amount, True, True, 5)
+                        self.lbl_tran_account.set_text(account)
+                        self.lbl_tran_category.set_text(category)
+                        self.lbl_tran_amount.set_text(str(format(amount, '.8f')))
+                        self.hboxRowTransaction.show()
+                        self.lbl_tran_account.show()
+                        self.lbl_tran_category.show()
+                        self.lbl_tran_amount.show()
+                        self.listbox_transaction.show()
+                    else:
+                        pass
+            else:
+                pass
+        except:
+            print ("Set_Filter Unexpected error:", sys.exc_info())
+
+    def open_send(self, widget):
+        self.populate_drp_send(self)
+        self.lbl_result_move.set_text("")
+        self.lbl_result_send.set_text("")
+        self.notebook.set_current_page(3)
+
     def populate_drp_send(self, widget):
         try:
             self.drp_from_move.remove_all()
@@ -252,17 +254,29 @@ class FujiCoin(object):
         minconf = int(minconf)
         comment = self.entry_comment_move.get_text()
         move_coin = subprocess.check_output("fujicoind move " + from_account + " " + to_account + " " + str(amount) + " " + str(minconf) + " " + comment + "; exit 0",  stderr=subprocess.STDOUT, shell=True)
-        print (type(move_coin))
-        if (move_coin == "true"):
-            move_message = "Correctly moved " + str(amount) + " fujicoin from " + from_account + " to " + to_account
+        if (move_coin.strip() == "true"):
+            move_message = "Correctly moved " + str(amount) + " fujicoin\nfrom account " + from_account + " to account " + to_account
             self.lbl_result_move.set_text(move_message)
         else:
             move_message = move_coin
             self.lbl_result_move.set_text(move_message)
 
-    def open_send(self, widget):
-        self.populate_drp_send(self)
-        self.notebook.set_current_page(3)
+    def send_coin(self, widget):
+        from_account = self.drp_from_send.get_active_text()
+        to_address = self.entry_send.get_text()
+        amount = self.spin_amount_send.get_value()
+        amount = format(amount, '.8f')
+        minconf = self.spin_minconf_send.get_value()
+        minconf = int(minconf)
+        comment = self.entry_comment_send.get_text()
+        comment_to = self.entry_comment_to_send.get_text()
+        send_coin = subprocess.check_output("fujicoind sendfrom " + from_account + " " + to_address + " " + str(amount) + " " + str(minconf) + " " + comment + " " + comment_to + "; exit 0",  stderr=subprocess.STDOUT, shell=True)
+        if (send_coin.strip() == "true"):
+            send_message = "Correctly sent " + str(amount) + " fujicoin\nfrom account " + from_account + " to address " + to_address
+            self.lbl_result_send.set_text(send_message)
+        else:
+            send_message = send_coin
+            self.lbl_result_send.set_text(send_message)
 
     def open_nodes(self, widget):
         self.listbox_nodes.destroy()
@@ -335,13 +349,22 @@ class FujiCoin(object):
         self.drp_tran_category = self.builder.get_object('drp_tran_category')
         self.spin_count_tran = self.builder.get_object('spin_count_tran')
         # Send Page
+        # Move section
         self.drp_from_move = self.builder.get_object('drp_from_move')
         self.drp_to_move = self.builder.get_object('drp_to_move')
         self.spin_amount_move = self.builder.get_object('spin_amount_move')
         self.spin_minconf_move = self.builder.get_object('spin_minconf_move')
         self.entry_comment_move = self.builder.get_object('entry_comment_move')
         self.lbl_result_move = self.builder.get_object('lbl_result_move')
+        # Send section
         self.drp_from_send = self.builder.get_object('drp_from_send')
+        self.entry_send = self.builder.get_object('entry_send')
+        self.spin_amount_send = self.builder.get_object('spin_amount_send')
+        self.spin_minconf_send = self.builder.get_object('spin_minconf_send')
+        self.entry_comment_send = self.builder.get_object('entry_comment_send')
+        self.entry_comment_to_send = self.builder.get_object('entry_comment_to_send')
+        self.lbl_result_send = self.builder.get_object('lbl_result_send')
+
         # Receive Page
         self.vbox_cont_receive = self.builder.get_object('vbox_cont_receive')
         self.listbox_receive = self.builder.get_object('listbox_receive')
@@ -367,6 +390,7 @@ class FujiCoin(object):
             "on_spin_count_tran_value_changed": self.set_filter_tran,
             "on_btn_send_clicked": self.open_send,
             "on_btn_move_clicked": self.move_coin,
+            "on_btn_send_coin_clicked": self.send_coin,
             "on_btn_nodes_clicked": self.open_nodes,
             "on_btn_add_node_clicked" : self.add_node,
             "on_btn_remove_node_clicked": self.remove_node,
